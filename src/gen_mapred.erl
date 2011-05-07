@@ -29,11 +29,17 @@ behaviour_info(callbacks) ->
 behaviour_info(_Other) ->
     undefined.
 
+%% each callback function have 2 versions:
+%% one generate output list with emitted Key/Values - may require a lot of memory for intermediate lists
+%% the other more robust - send message for each emitted Key/Value
+
 %% MinMappers..MaxMappers , MinReducers..MaxReducers
 
 %% also need to support Hadoop's Streaming API
 
 %% [ input reader -> map -> sort-and-shuffle -> combine ] ==>  [ reduce -> output writer ]
+%% or maybe:
+%% [ input reader -> map -> combine -> sort-and-shuffle ] ==>  [ reduce -> output writer ]
 
 -spec split(term()) -> [{k1(),v1()}].
 % send {k1(),v1() or [{k1(),v1()}] to mapper (or compbiner): Pid ! {map_result, [{k1(),v1()}]).
