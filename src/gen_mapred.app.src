@@ -1,0 +1,8 @@
+{application,gen_mapred,
+             [{description,"Generic Map/Reduce"},
+              {vsn,"1.0"},
+              {modules,[]},
+              {registered,[]},
+              %{mod,{gen_mapred_app,[]}},
+              {env,[]},
+              {applications,[kernel,stdlib]}]}.
