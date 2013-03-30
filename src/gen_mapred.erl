@@ -8,26 +8,12 @@
 %%%
 %%% @author Zvi Avraham <zvi@nivertech.com>
 %%%
-%%% @copyright Nivertech (Nywhere Tech Ltd), 2011
+%%% @copyright ZADATA Ltd, 2011-2013
 %%% @license GPL, see file GPL-LICENSE.txt
 %%% @end
 %%%-----------------------------------------------------------------------------
 
 -module(gen_mapred).
-
--export([behaviour_info/1]).
-
-behaviour_info(callbacks) ->
-    [
-     {map,      2},
-     {combine,  1},
-     {reduce,   2},
-     {compare,  2},
-     {partition,3}
-    ];
-
-behaviour_info(_Other) ->
-    undefined.
 
 %% each callback function have 2 versions:
 %% one generate output list with emitted Key/Values - may require a lot of memory for intermediate lists
@@ -41,26 +27,36 @@ behaviour_info(_Other) ->
 %% or maybe:
 %% [ input reader -> map -> combine -> sort-and-shuffle ] ==>  [ reduce -> output writer ]
 
--spec split(term()) -> [{k1(),v1()}].
+% TODO: is it good idea to restrict keys to "string"-like types?
+-type key() :: atom() | binary() | iolist().
+
+-type k1()::key().
+-type v1()::term().
+
+-type k2()::key().
+-type v2()::term().
+
+-type v3()::term().
+
+-callback split(term()) -> [{k1(),v1()}].
 % send {k1(),v1() or [{k1(),v1()}] to mapper (or compbiner): Pid ! {map_result, [{k1(),v1()}]).
--spec split(term(),pid()) -> ok. 
--spec output(term()) -> ok. 
+-callback split(term(),pid()) -> ok. 
+-callback output(term()) -> ok. 
 
--spec map_before() -> ok.
--spec map(k1(),v1()) -> [{k2(),v2()}]. 
--spec map(k1(),v1(),pid()) -> ok. 
--spec map_after() -> ok.
+-callback map_before() -> ok.
+-callback map(k1(),v1()) -> [{k2(),v2()}]. 
+-callback map(k1(),v1(),pid()) -> ok. 
+-callback map_after() -> ok.
 
--spec combine_before() -> ok.
--spec combine([{k2(),v2()}]) -> [{k2(),[v2()]}]. 
--spec combine([{k2(),v2()}],pid()) -> ok. 
--spec combine_after() -> ok.
+-callback combine_before() -> ok.
+-callback combine([{k2(),v2()}]) -> [{k2(),[v2()]}]. 
+-callback combine([{k2(),v2()}],pid()) -> ok. 
+-callback combine_after() -> ok.
 
--spec reduce_before() -> ok.
--spec reduce(k2(),[v2()]) -> [v3()].
--spec reduce(k2(),[v2()],pid()) -> ok.
--spec reduce_after() -> ok.
+-callback reduce_before() -> ok.
+-callback reduce(k2(),[v2()]) -> [v3()].
+-callback reduce(k2(),[v2()],pid()) -> ok.
+-callback reduce_after() -> ok.
 
--spec compare(k2(), k2()) -> -1|0|1.
--spec partition(k2(),v2(),NumReduceTasks::pos_integer()) -> non_neg_integer().
-
+-callback compare(k2(), k2()) -> -1|0|1.
+-callback partition(k2(),v2(),NumReduceTasks::pos_integer()) -> non_neg_integer().
